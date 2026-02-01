@@ -38,9 +38,9 @@ export function DCAChart({ data, isLoading, cryptoType }: DCAChartProps) {
   const lineColor = cryptoType === 'bitcoin' ? '#f97316' : '#a855f7';
 
   return (
-    <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+    <div className="bg-slate-900 border border-slate-700 rounded-lg p-6">
       <h2 className="text-xl font-bold text-white mb-4">Évolution du portefeuille</h2>
-      <ResponsiveContainer width="100%" height={400}>
+      <ResponsiveContainer width="100%" height={300}>
         <LineChart
           data={data}
           margin={{ top: 5, right: 30, left: 0, bottom: 5 }}

@@ -93,15 +93,13 @@ export default function Home() {
   }, [selectedCrypto, initialCapital, monthlyAddition, startDate, endDate]);
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-slate-900 mx-auto max-w-5xl">
       {/* Main content */}
-      <div className="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col lg:flex-row gap-6 mx-auto p-4 sm:p-6 lg:p-8">
         {/* Sidebar */}
         <aside className="lg:w-80 lg:sticky lg:top-8 h-fit">
-          <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-6 space-y-6">
-            <Logo />
+          <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
             <div>
-              <h2 className="text-lg font-semibold text-white mb-4">Paramètres</h2>
               <CryptoSelector
                 selectedCrypto={selectedCrypto}
                 onSelectCrypto={setSelectedCrypto}
