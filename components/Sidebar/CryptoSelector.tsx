@@ -1,7 +1,8 @@
 'use client';
 
 import { CryptoType } from '@/types';
-import { Bitcoin, Zap } from 'lucide-react';
+import { Bitcoin } from 'lucide-react';
+import { EthereumIcon } from './EthereumIcon';
 
 interface CryptoSelectorProps {
   selectedCrypto: CryptoType;
@@ -33,7 +34,7 @@ export function CryptoSelector({
             : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
         }`}
       >
-        <Zap size={20} />
+        <EthereumIcon />
         <span>Ethereum</span>
       </button>
     </div>

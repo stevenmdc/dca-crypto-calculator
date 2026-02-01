@@ -2,7 +2,6 @@
 
 import { CalculationResult } from '@/types';
 import { MetricDisplay } from './MetricDisplay';
-import { TrendingUp, DollarSign, Target } from 'lucide-react';
 
 interface SummaryCardProps {
   result: CalculationResult | null;
@@ -36,13 +35,10 @@ export function SummaryCard({ result, isLoading }: SummaryCardProps) {
 
   return (
     <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6 space-y-6">
-      <h2 className="text-xl font-bold text-white">Résumé</h2>
-
-      <div className="space-y-4">
+      <div className="flex flex-wrap gap space-x-4">
         <MetricDisplay
           label="Valeur finale du portefeuille"
           value={`€${result.finalValue.toFixed(2)}`}
-          icon={TrendingUp}
           subText={`+${result.roiPercentage.toFixed(2)}%`}
           variant="positive"
         />
@@ -50,13 +46,11 @@ export function SummaryCard({ result, isLoading }: SummaryCardProps) {
         <MetricDisplay
           label="Capital total investi"
           value={`€${result.totalInvested.toFixed(2)}`}
-          icon={DollarSign}
         />
 
         <MetricDisplay
           label="Performance"
           value={`€${result.roi.toFixed(2)}`}
-          icon={Target}
           subText={`${result.roiPercentage >= 0 ? '+' : ''}${result.roiPercentage.toFixed(2)}%`}
           variant={performanceColor}
         />

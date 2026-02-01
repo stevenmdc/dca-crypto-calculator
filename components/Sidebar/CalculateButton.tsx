@@ -20,7 +20,7 @@ export function CalculateButton({
       className={`w-full py-3 px-4 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all ${
         isLoading || isDisabled
           ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-          : 'bg-gradient-to-r from-purple-500 to-orange-500 text-white hover:from-purple-600 hover:to-orange-600 shadow-lg shadow-purple-500/30 hover:shadow-lg hover:shadow-purple-600/40'
+          : 'bg-linear-to-r from-purple-500 to-orange-500 text-white hover:from-purple-600 hover:to-orange-600 shadow-lg shadow-purple-500/30 hover:shadow-lg hover:shadow-purple-600/40'
       }`}
     >
       {isLoading ? (
@@ -29,7 +29,7 @@ export function CalculateButton({
           <span>Calcul en cours...</span>
         </>
       ) : (
-        <span>Calculer DCA</span>
+        <span>Calculer</span>
       )}
     </button>
   );

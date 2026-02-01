@@ -17,6 +17,12 @@
 /.next/
 /out/
 
+# System files
+nul
+*.log
+.claude/
+PLAN.md 
+
 # production
 /build
 

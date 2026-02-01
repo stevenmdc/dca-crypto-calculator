@@ -1,34 +1,31 @@
-'use client';
-
-import { LucideIcon } from 'lucide-react';
+"use client";
 
 interface MetricDisplayProps {
   label: string;
   value: string;
-  icon: LucideIcon;
   subText?: string;
-  variant?: 'default' | 'positive' | 'negative';
+  variant?: "default" | "positive" | "negative";
 }
 
 export function MetricDisplay({
   label,
   value,
-  icon: Icon,
   subText,
-  variant = 'default',
+  variant = "default",
 }: MetricDisplayProps) {
   const variantClasses = {
-    default: 'text-slate-400',
-    positive: 'text-green-400',
-    negative: 'text-red-400',
+    default: "text-slate-400",
+    positive: "text-green-400",
+    negative: "text-red-400",
   };
 
   return (
     <div className="flex items-start gap-3">
-      <Icon className="text-slate-500 shrink-0 mt-1" size={20} />
       <div className="flex-1">
         <p className="text-sm text-slate-400">{label}</p>
-        <p className={`text-lg font-semibold ${variantClasses[variant]}`}>{value}</p>
+        <p className={`text-lg font-semibold ${variantClasses[variant]}`}>
+          {value}
+        </p>
         {subText && <p className="text-xs text-slate-500 mt-1">{subText}</p>}
       </div>
     </div>
