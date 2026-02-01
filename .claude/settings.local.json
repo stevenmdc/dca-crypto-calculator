@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"d:\\\\Github\\\\dca-crypto-calculator\\\\components\\\\Sidebar\"\" 2>&1 || echo \"Dossier n 'existe pas encore \")"
+    ]
+  }
+}
