@@ -1,5 +1,8 @@
 import { FormInputs } from '@/types';
 
+export const MIN_START_DATE_ISO = '2016-01-01';
+const MIN_START_DATE = new Date('2016-01-01T00:00:00Z');
+
 export function formatCurrency(value: number, currency: string = '€'): string {
   return `${currency}${value.toLocaleString('fr-FR', {
     minimumFractionDigits: 2,
@@ -41,6 +44,10 @@ export function validateFormInputs(inputs: FormInputs): {
     errors.push('La date de début ne peut pas être dans le futur');
   }
 
+  if (inputs.startDate < MIN_START_DATE) {
+    errors.push('La date de début ne peut pas être avant le 01/01/2016');
+  }
+
   return {
     valid: errors.length === 0,
     errors,
@@ -62,5 +69,7 @@ export function getDefaultStartDate(): Date {
 }
 
 export function getDefaultEndDate(): Date {
-  return new Date();
+  const date = new Date();
+  date.setDate(date.getDate() - 1);
+  return date;
 }

@@ -17,10 +17,10 @@ export function CryptoSelector({
     <div className="flex gap-3">
       <button
         onClick={() => onSelectCrypto('bitcoin')}
-        className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all ${
+        className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all cursor-pointer ${
           selectedCrypto === 'bitcoin'
-            ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30'
-            : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+            ? 'bg-orange-500 text-white'
+            : 'bg-midnight-800 text-white hover:bg-midnight-700'
         }`}
       >
         <Bitcoin size={20} />
@@ -28,10 +28,10 @@ export function CryptoSelector({
       </button>
       <button
         onClick={() => onSelectCrypto('ethereum')}
-        className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all ${
+        className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all cursor-pointer ${
           selectedCrypto === 'ethereum'
-            ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/30'
-            : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+            ? 'bg-purple-500 text-white'
+            : 'bg-midnight-800 text-white hover:bg-midnight-700'
         }`}
       >
         <EthereumIcon />

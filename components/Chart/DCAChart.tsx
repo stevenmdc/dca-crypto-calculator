@@ -21,16 +21,16 @@ interface DCAChartProps {
 export function DCAChart({ data, isLoading, cryptoType }: DCAChartProps) {
   if (isLoading) {
     return (
-      <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6 h-96 flex items-center justify-center">
-        <div className="text-slate-400">Chargement du graphique...</div>
+      <div className="bg-midnight-800/50 border border-slate-700 rounded-lg p-6 h-96 flex items-center justify-center">
+        <div className="text-white">Chargement du graphique...</div>
       </div>
     );
   }
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6 h-96 flex items-center justify-center">
-        <div className="text-slate-400">Lancez une simulation pour voir le graphique</div>
+      <div className="bg-midnight-800/50 border border-slate-700 rounded-lg p-6 h-96 flex items-center justify-center">
+        <div className="text-white">Lancez une simulation pour voir le graphique</div>
       </div>
     );
   }
@@ -38,7 +38,7 @@ export function DCAChart({ data, isLoading, cryptoType }: DCAChartProps) {
   const lineColor = cryptoType === 'bitcoin' ? '#f97316' : '#a855f7';
 
   return (
-    <div className="bg-slate-900 border border-slate-700 rounded-lg p-6">
+    <div className="bg-midnight-900 border border-slate-700 rounded-lg p-6">
       <h2 className="text-xl font-bold text-white mb-4">Évolution du portefeuille</h2>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart

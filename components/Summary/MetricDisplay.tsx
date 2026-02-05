@@ -14,7 +14,7 @@ export function MetricDisplay({
   variant = "default",
 }: MetricDisplayProps) {
   const variantClasses = {
-    default: "text-slate-400",
+    default: "text-white",
     positive: "text-green-400",
     negative: "text-red-400",
   };
@@ -22,11 +22,11 @@ export function MetricDisplay({
   return (
     <div className="flex items-start gap-3">
       <div className="flex-1">
-        <p className="text-sm text-slate-400">{label}</p>
+        <p className="text-sm text-white">{label}</p>
         <p className={`text-lg font-semibold ${variantClasses[variant]}`}>
           {value}
         </p>
-        {subText && <p className="text-xs text-slate-500 mt-1">{subText}</p>}
+        {subText && <p className="text-xs text-white mt-1">{subText}</p>}
       </div>
     </div>
   );

@@ -11,7 +11,13 @@ import { SummaryCard } from '@/components/Summary/SummaryCard';
 import { DCAChart } from '@/components/Chart/DCAChart';
 import { fetchHistoricalPrices } from '@/lib/priceApi';
 import { calculateDCA, prepareChartData, calculateMetrics } from '@/lib/dcaCalculator';
-import { validateFormInputs, dateToISOString, getDefaultStartDate, getDefaultEndDate } from '@/lib/utils';
+import {
+  MIN_START_DATE_ISO,
+  validateFormInputs,
+  dateToISOString,
+  getDefaultStartDate,
+  getDefaultEndDate,
+} from '@/lib/utils';
 import { DollarSign } from 'lucide-react';
 
 export default function Home() {
@@ -93,12 +99,12 @@ export default function Home() {
   }, [selectedCrypto, initialCapital, monthlyAddition, startDate, endDate]);
 
   return (
-    <div className="min-h-screen bg-slate-900 mx-auto max-w-5xl">
+    <div className="min-h-screen bg-midnight mx-auto max-w-5xl">
       {/* Main content */}
       <div className="flex flex-col lg:flex-row gap-6 mx-auto p-4 sm:p-6 lg:p-8">
         {/* Sidebar */}
         <aside className="lg:w-80 lg:sticky lg:top-8 h-fit">
-          <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4">
+          <div className="bg-midnight border border-slate-800 rounded-lg p-6 space-y-4">
             <div>
               <CryptoSelector
                 selectedCrypto={selectedCrypto}
@@ -130,7 +136,7 @@ export default function Home() {
                 label="Date de début"
                 value={startDate}
                 onChange={setStartDate}
-                min="2022-01-01"
+                min={MIN_START_DATE_ISO}
                 max={endDate}
               />
               <DatePicker

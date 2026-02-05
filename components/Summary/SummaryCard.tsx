@@ -11,11 +11,11 @@ interface SummaryCardProps {
 export function SummaryCard({ result, isLoading }: SummaryCardProps) {
   if (isLoading) {
     return (
-      <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6 space-y-4">
-        <div className="h-6 bg-slate-700 rounded animate-pulse w-1/3" />
+      <div className="bg-midnight-800/50 border border-slate-700 rounded-lg p-6 space-y-4">
+        <div className="h-6 bg-midnight-700 rounded animate-pulse w-1/3" />
         <div className="space-y-3">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-4 bg-slate-700 rounded animate-pulse" />
+            <div key={i} className="h-4 bg-midnight-700 rounded animate-pulse" />
           ))}
         </div>
       </div>
@@ -24,7 +24,7 @@ export function SummaryCard({ result, isLoading }: SummaryCardProps) {
 
   if (!result) {
     return (
-      <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6 text-center text-slate-400">
+      <div className="bg-midnight-800/50 border border-slate-700 rounded-lg p-6 text-center text-white">
         <p>Lancez une simulation pour voir les résultats</p>
       </div>
     );
@@ -34,7 +34,7 @@ export function SummaryCard({ result, isLoading }: SummaryCardProps) {
     result.roiPercentage >= 0 ? 'positive' : 'negative';
 
   return (
-    <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6 space-y-6">
+    <div className="bg-midnight-800/50 border border-slate-700 rounded-lg p-6 space-y-6">
       <div className="flex flex-wrap gap space-x-4">
         <MetricDisplay
           label="Valeur finale du portefeuille"
