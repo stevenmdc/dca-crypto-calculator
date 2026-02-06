@@ -25,19 +25,3 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
-
-.hide-native-date-icon {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: textfield;
-}
-
-.hide-native-date-icon::-webkit-calendar-picker-indicator {
-  opacity: 0;
-  display: none;
-}
-
-.hide-native-date-icon::-webkit-inner-spin-button,
-.hide-native-date-icon::-webkit-clear-button {
-  display: none;
-}
