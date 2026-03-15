@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { CalculationResult, CryptoType, FormInputs } from '@/types';
 import { fetchHistoricalPrices } from '@/lib/priceApi';
 import { calculateDCA, calculateMetrics, prepareChartData } from '@/lib/dcaCalculator';
-import { validateFormInputs } from '@/lib/utils';
+import { dateFromISOString, validateFormInputs } from '@/lib/utils';
 
 interface UseDcaCalculationParams {
   selectedCrypto: CryptoType;
@@ -34,8 +34,8 @@ export function useDcaCalculation({
         crypto: selectedCrypto,
         initialCapital,
         monthlyAddition,
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
+        startDate: dateFromISOString(startDate),
+        endDate: dateFromISOString(endDate),
       };
 
       const validation = validateFormInputs(formInputs);

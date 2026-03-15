@@ -2,7 +2,7 @@
 
 import { DollarSign } from 'lucide-react';
 import { CryptoType } from '@/types';
-import { MIN_START_DATE_ISO, dateToISOString, getDefaultEndDate } from '@/lib/utils';
+import { MIN_START_DATE_ISO } from '@/lib/utils';
 import { CryptoSelector } from '@/components/Sidebar/CryptoSelector';
 import { InputField } from '@/components/Sidebar/InputField';
 import { DatePicker } from '@/components/Sidebar/DatePicker';
@@ -19,6 +19,7 @@ interface CalculatorSidebarProps {
   onStartDateChange: (value: string) => void;
   endDate: string;
   onEndDateChange: (value: string) => void;
+  maxEndDate: string;
   error: string | null;
   isLoading: boolean;
   onCalculate: () => void;
@@ -35,6 +36,7 @@ export function CalculatorSidebar({
   onStartDateChange,
   endDate,
   onEndDateChange,
+  maxEndDate,
   error,
   isLoading,
   onCalculate,
@@ -78,7 +80,7 @@ export function CalculatorSidebar({
             value={endDate}
             onChange={onEndDateChange}
             min={startDate}
-            max={dateToISOString(getDefaultEndDate())}
+            max={maxEndDate}
           />
         </div>
 
@@ -91,7 +93,7 @@ export function CalculatorSidebar({
         <CalculateButton
           onClick={onCalculate}
           isLoading={isLoading}
-          isDisabled={initialCapital < 0 || monthlyAddition < 0}
+          isDisabled={initialCapital < 0 || monthlyAddition < 0 || !startDate || !endDate}
         />
       </div>
     </aside>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CryptoType } from '@/types';
 import { dateToISOString, getDefaultEndDate, getDefaultStartDate } from '@/lib/utils';
 import { CalculatorSidebar } from '@/components/Sidebar/CalculatorSidebar';
@@ -11,8 +11,22 @@ export default function Home() {
   const [selectedCrypto, setSelectedCrypto] = useState<CryptoType>('bitcoin');
   const [initialCapital, setInitialCapital] = useState(100);
   const [monthlyAddition, setMonthlyAddition] = useState(50);
-  const [startDate, setStartDate] = useState(dateToISOString(getDefaultStartDate()));
-  const [endDate, setEndDate] = useState(dateToISOString(getDefaultEndDate()));
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [maxEndDate, setMaxEndDate] = useState('');
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      const defaultEndDate = getDefaultEndDate();
+
+      setStartDate(dateToISOString(getDefaultStartDate()));
+      setEndDate(dateToISOString(defaultEndDate));
+      setMaxEndDate(dateToISOString(defaultEndDate));
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
   const { result, isLoading, error, handleCalculate } = useDcaCalculation({
     selectedCrypto,
     initialCapital,
@@ -35,6 +49,7 @@ export default function Home() {
           onStartDateChange={setStartDate}
           endDate={endDate}
           onEndDateChange={setEndDate}
+          maxEndDate={maxEndDate}
           error={error}
           isLoading={isLoading}
           onCalculate={handleCalculate}
