@@ -1,7 +1,7 @@
 // components/Sidebar/DatePicker.tsx
 'use client';
 
-import { useRef } from 'react';
+import { useId, useRef } from 'react';
 import { Calendar } from 'lucide-react';
 
 interface DatePickerProps {
@@ -19,6 +19,7 @@ export function DatePicker({
   min,
   max,
 }: DatePickerProps) {
+  const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenPicker = () => {
@@ -35,24 +36,25 @@ export function DatePicker({
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-white">{label}</label>
-      <div className="relative  items-center">
+      <label htmlFor={inputId} className="block text-sm font-medium text-white">{label}</label>
+      <div className="relative">
         <button
           type="button"
           onClick={handleOpenPicker}
           aria-label={`Ouvrir le calendrier: ${label}`}
-          className="absolute left-2 top-1/2 -translate-y-1/2 hover:text-slate-200 rounded p-1 cursor-pointer z-10"
+          className="absolute inset-y-0 left-0 z-10 hidden w-7 cursor-pointer place-items-center rounded text-white hover:text-slate-200 supports-[selector(input::-webkit-calendar-picker-indicator)]:grid"
         >
-          <Calendar size={16} />
+          <Calendar size={14} aria-hidden="true" className="-translate-y-px" />
         </button>
         <input
           ref={inputRef}
+          id={inputId}
           type="date"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           min={min}
           max={max}
-          className="w-full bg-midnight-800 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-white focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/20 transition-all cursor-pointer"
+          className="block w-full min-w-0 bg-midnight-800 border border-slate-700 rounded-lg px-2 py-2 text-sm text-white focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-500/20 transition-all supports-[selector(input::-webkit-calendar-picker-indicator)]:pl-7 supports-[selector(input::-webkit-calendar-picker-indicator)]:pr-1 [&::-webkit-calendar-picker-indicator]:hidden"
         />
       </div>
     </div>

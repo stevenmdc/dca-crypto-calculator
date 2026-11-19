@@ -1,18 +1,14 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { CalculationResult, CryptoType } from '@/types';
+import { useState } from 'react';
+import type { CalculationResult, CryptoType, Currency } from '@/types';
+import { contributionFrequencyLabels, cryptoSymbols, formatCurrency } from '@/lib/utils';
 
 interface CalculationMethodCardProps {
   result: CalculationResult | null;
   isLoading: boolean;
   selectedCrypto: CryptoType;
-  initialCapital: number;
-  monthlyAddition: number;
-}
-
-function formatEuro(value: number): string {
-  return `EUR ${value.toFixed(2)}`;
+  currency: Currency;
 }
 
 function formatCrypto(value: number, symbol: string): string {
@@ -23,45 +19,10 @@ export function CalculationMethodCard({
   result,
   isLoading,
   selectedCrypto,
-  initialCapital,
-  monthlyAddition,
+  currency,
 }: CalculationMethodCardProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const cryptoSymbolByType: Record<CryptoType, string> = {
-    bitcoin: 'BTC',
-    ethereum: 'ETH',
-    solana: 'SOL',
-    xrp: 'XRP',
-  };
-  const cryptoSymbol = cryptoSymbolByType[selectedCrypto];
-
-  const methodValues = useMemo(() => {
-    if (!result?.method) {
-      return null;
-    }
-
-    const totalInvested = result.totalInvested;
-    const finalValue = result.finalValue;
-    const roi = result.roi;
-    const roiPercentage = result.roiPercentage;
-    const initialPrice = result.method.initialPrice;
-    const finalPrice = result.method.finalPrice;
-    const totalCryptoQuantity = result.method.totalCryptoQuantity;
-    const monthlyInvestmentsCount = result.method.monthlyInvestmentsCount;
-    const initialQuantity = initialPrice > 0 ? initialCapital / initialPrice : 0;
-
-    return {
-      totalInvested,
-      finalValue,
-      roi,
-      roiPercentage,
-      initialPrice,
-      finalPrice,
-      totalCryptoQuantity,
-      monthlyInvestmentsCount,
-      initialQuantity,
-    };
-  }, [result, initialCapital]);
+  const cryptoSymbol = cryptoSymbols[selectedCrypto];
 
   if (isLoading) {
     return (
@@ -76,13 +37,16 @@ export function CalculationMethodCard({
     );
   }
 
-  if (!result || !methodValues) {
+  if (!result?.method) {
     return (
       <div className="bg-midnight-800/50 border border-slate-700 rounded-lg p-6 text-center text-white">
         <p>Aucune donnée disponible</p>
       </div>
     );
   }
+
+  const { initialCapital, contribution, frequency, initialPrice, finalPrice, totalCryptoQuantity, contributionCount } = result.method;
+  const initialQuantity = initialPrice > 0 ? initialCapital / initialPrice : 0;
 
   return (
     <div className="bg-midnight-800/50 border border-slate-700 rounded-lg p-6 space-y-4">
@@ -100,40 +64,40 @@ export function CalculationMethodCard({
         <div className="space-y-3 text-sm text-white">
           <p>
             <code className="text-cyan-200">
-              Q0 = C0 / P0 = {formatEuro(initialCapital)} / {formatEuro(methodValues.initialPrice)} ={' '}
-              {formatCrypto(methodValues.initialQuantity, cryptoSymbol)}
+              Q0 = C0 / P0 = {formatCurrency(initialCapital, currency)} / {formatCurrency(initialPrice, currency)} ={' '}
+              {formatCrypto(initialQuantity, cryptoSymbol)}
             </code>
           </p>
           <p>
             <code className="text-cyan-200">
-              Q_total = Q0 + sum(M / P_i) = {formatCrypto(methodValues.totalCryptoQuantity, cryptoSymbol)}
+              Q_total = Q0 + sum(M / P_i) = {formatCrypto(totalCryptoQuantity, cryptoSymbol)}
             </code>
           </p>
           <p>
             <code className="text-cyan-200">
-              C_total = C0 + n * M = {formatEuro(initialCapital)} + {methodValues.monthlyInvestmentsCount} *{' '}
-              {formatEuro(monthlyAddition)} = {formatEuro(methodValues.totalInvested)}
+              C_total = C0 + n * M = {formatCurrency(initialCapital, currency)} + {contributionCount} *{' '}
+              {formatCurrency(contribution, currency)} = {formatCurrency(result.totalInvested, currency)}
             </code>
           </p>
           <p>
             <code className="text-cyan-200">
-              V_final = Q_total * P_end = {formatCrypto(methodValues.totalCryptoQuantity, cryptoSymbol)} *{' '}
-              {formatEuro(methodValues.finalPrice)} = {formatEuro(methodValues.finalValue)}
+              V_final = Q_total * P_end = {formatCrypto(totalCryptoQuantity, cryptoSymbol)} *{' '}
+              {formatCurrency(finalPrice, currency)} = {formatCurrency(result.finalValue, currency)}
             </code>
           </p>
           <p>
             <code className="text-cyan-200">
-              ROI = V_final - C_total = {formatEuro(methodValues.roi)}
+              ROI = V_final - C_total = {formatCurrency(result.roi, currency)}
             </code>
           </p>
           <p>
             <code className="text-cyan-200">
-              ROI% = (ROI / C_total) * 100 = {methodValues.roiPercentage.toFixed(2)}%
+              ROI% = (ROI / C_total) * 100 = {result.roiPercentage.toFixed(2)}%
             </code>
           </p>
           <p className="text-xs text-white/70">
-            n = nombre d&apos;achats mensuels ({methodValues.monthlyInvestmentsCount}), M = ajout mensuel (
-            {formatEuro(monthlyAddition)}), P_i = prix au moment de chaque achat.
+            n = nombre d’ajouts ({contributionCount}), M = montant par ajout ({formatCurrency(contribution, currency)}),
+            P_i = prix au moment de chaque achat. Fréquence {contributionFrequencyLabels[frequency].toLowerCase()}.
           </p>
         </div>
       )}

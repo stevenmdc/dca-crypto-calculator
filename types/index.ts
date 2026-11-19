@@ -1,9 +1,18 @@
 export type CryptoType = 'bitcoin' | 'ethereum' | 'solana' | 'xrp';
+export type Currency = 'EUR' | 'USD';
+export type ContributionFrequency = 'weekly' | 'monthly' | 'yearly';
+export type ChartInterval = 'daily' | 'weekly' | 'monthly';
+
+export interface PriceCoverage {
+  firstDate: string;
+  lastDate: string;
+  syncedAt: string | null;
+}
 
 export interface FormInputs {
   crypto: CryptoType;
   initialCapital: number;
-  monthlyAddition: number;
+  contribution: number;
   startDate: Date;
   endDate: Date;
 }
@@ -17,13 +26,17 @@ export interface ChartDataPoint {
   date: string;
   portfolioValue: number;
   investedCapital: number;
+  cryptoQuantity: number;
 }
 
 export interface CalculationMethodDetails {
+  initialCapital: number;
+  contribution: number;
+  frequency: ContributionFrequency;
   initialPrice: number;
   finalPrice: number;
   totalCryptoQuantity: number;
-  monthlyInvestmentsCount: number;
+  contributionCount: number;
 }
 
 export interface CalculationResult {
@@ -41,4 +54,5 @@ export interface DCAResult {
   investedCapital: number[];
   cryptoQuantity: number[];
   prices: number[];
+  contributionCount: number;
 }

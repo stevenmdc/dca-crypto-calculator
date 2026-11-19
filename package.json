@@ -6,9 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "tsx --test tests/prices.test.ts",
+    "prices:import": "tsx scripts/import-history.ts",
+    "prices:update": "tsx scripts/update-prices.ts",
+    "prices:backup": "tsx scripts/backup-prices.ts"
   },
   "dependencies": {
+    "@libsql/client": "^0.18.0",
+    "better-sqlite3": "^13.2.0",
+    "csv-parse": "^7.0.3",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.29.2",
     "lucide-react": "^0.563.0",
@@ -19,12 +26,14 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

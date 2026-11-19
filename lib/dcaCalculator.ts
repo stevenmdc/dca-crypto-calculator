@@ -1,11 +1,18 @@
-import { DCAResult, CalculationResult, ChartDataPoint, PriceData } from '@/types';
+import type { CalculationResult, ChartDataPoint, ChartInterval, ContributionFrequency, DCAResult, PriceData } from '@/types';
+import { DAY_MS, utcDay } from './price-dates';
+
+interface SimulationOptions {
+  frequency?: ContributionFrequency;
+  dailyValuations?: boolean;
+}
 
 export function calculateDCA(
   initialCapital: number,
-  monthlyAddition: number,
+  contribution: number,
   startDate: Date,
   endDate: Date,
-  historicalPrices: PriceData[]
+  historicalPrices: PriceData[],
+  { frequency = 'monthly', dailyValuations = false }: SimulationOptions = {},
 ): DCAResult {
   const dates: Date[] = [];
   const portfolioValues: number[] = [];
@@ -13,62 +20,41 @@ export function calculateDCA(
   const cryptoQuantity: number[] = [];
   const prices: number[] = [];
 
+  const start = startDate.getTime();
+  const end = endDate.getTime();
   let totalCryptoQuantity = 0;
   let totalInvestedAmount = 0;
+  let contributionCount = 0;
+  let priceIndex = 0;
+  let purchaseNumber = 1;
+  let nextPurchase = contributionDate(startDate, frequency, purchaseNumber);
 
-  // Initial investment at selected start date (or closest available before that date)
-  const initialPrice = findPriceAtOrBeforeDate(startDate, historicalPrices);
-  if (initialPrice !== null) {
-    totalCryptoQuantity = initialCapital / initialPrice;
-    totalInvestedAmount = initialCapital;
+  for (let timestamp = start; historicalPrices.length > 0 && timestamp <= end;) {
+    // Advance through the sorted history, using the first price if the date precedes it.
+    while (priceIndex + 1 < historicalPrices.length && historicalPrices[priceIndex + 1].timestamp <= timestamp) {
+      priceIndex++;
+    }
+    const price = historicalPrices[priceIndex].price;
 
-    dates.push(new Date(startDate));
-    investedCapital.push(totalInvestedAmount);
-    cryptoQuantity.push(totalCryptoQuantity);
-    portfolioValues.push(totalCryptoQuantity * initialPrice);
-    prices.push(initialPrice);
-  }
+    if (timestamp === start) {
+      totalInvestedAmount = initialCapital;
+      totalCryptoQuantity = initialCapital / price;
+    } else if (timestamp === nextPurchase) {
+      totalInvestedAmount += contribution;
+      totalCryptoQuantity += contribution / price;
+      if (contribution > 0) contributionCount++;
+      purchaseNumber++;
+      nextPurchase = contributionDate(startDate, frequency, purchaseNumber);
+    }
 
-  // Monthly additions
-  let currentDate = new Date(startDate);
-  while (currentDate < endDate) {
-    // Move to next month
-    currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
-
-    if (currentDate > endDate) break;
-
-    // Use price at this purchase date (or latest available before this date)
-    const price = findPriceAtOrBeforeDate(currentDate, historicalPrices);
-    if (!price) continue;
-
-    // Add monthly amount
-    const quantityBought = monthlyAddition / price;
-    totalCryptoQuantity += quantityBought;
-    totalInvestedAmount += monthlyAddition;
-
-    // Store data
-    dates.push(new Date(currentDate));
+    dates.push(new Date(timestamp));
     investedCapital.push(totalInvestedAmount);
     cryptoQuantity.push(totalCryptoQuantity);
     portfolioValues.push(totalCryptoQuantity * price);
     prices.push(price);
-  }
-
-  // Ensure final portfolio value is measured at endDate
-  const endPrice = findPriceAtOrBeforeDate(endDate, historicalPrices);
-  if (endPrice !== null && dates.length > 0) {
-    const lastIndex = dates.length - 1;
-    if (isSameMonthAndYear(dates[lastIndex], endDate)) {
-      dates[lastIndex] = new Date(endDate);
-      portfolioValues[lastIndex] = totalCryptoQuantity * endPrice;
-      prices[lastIndex] = endPrice;
-    } else {
-      dates.push(new Date(endDate));
-      investedCapital.push(totalInvestedAmount);
-      cryptoQuantity.push(totalCryptoQuantity);
-      portfolioValues.push(totalCryptoQuantity * endPrice);
-      prices.push(endPrice);
-    }
+    if (timestamp === end) break;
+    const nextValuation = dailyValuations ? timestamp + DAY_MS : Infinity;
+    timestamp = Math.min(nextValuation, nextPurchase, end);
   }
 
   return {
@@ -77,45 +63,51 @@ export function calculateDCA(
     investedCapital,
     cryptoQuantity,
     prices,
+    contributionCount,
   };
 }
 
-function isSameMonthAndYear(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
-}
+function contributionDate(start: Date, frequency: ContributionFrequency, purchaseNumber: number): number {
+  if (frequency === 'weekly') return start.getTime() + purchaseNumber * 7 * DAY_MS;
+  const year = start.getUTCFullYear();
+  const month = start.getUTCMonth();
+  if (frequency === 'monthly') return Date.UTC(year, month + purchaseNumber, 1);
 
-function findPriceAtOrBeforeDate(date: Date, prices: PriceData[]): number | null {
-  if (prices.length === 0) return null;
-
-  const target = date.getTime();
-  let candidate: PriceData | null = null;
-
-  for (const price of prices) {
-    if (price.timestamp <= target) {
-      candidate = price;
-      continue;
-    }
-    break;
-  }
-
-  // If no earlier price exists in range, use first available price after target date.
-  if (!candidate) {
-    return prices[0].price;
-  }
-
-  return candidate.price;
+  const purchaseYear = year + purchaseNumber;
+  const daysInMonth = new Date(Date.UTC(purchaseYear, month + 1, 0)).getUTCDate();
+  return Date.UTC(purchaseYear, month, Math.min(start.getUTCDate(), daysInMonth));
 }
 
 export function prepareChartData(
   dates: Date[],
   portfolioValues: number[],
-  investedCapital: number[]
+  investedCapital: number[],
+  cryptoQuantity: number[],
 ): ChartDataPoint[] {
   return dates.map((date, index) => ({
-    date: date.toLocaleDateString('fr-FR', { year: '2-digit', month: '2-digit' }),
+    date: utcDay(date.getTime()),
     portfolioValue: Math.round(portfolioValues[index] * 100) / 100,
     investedCapital: Math.round(investedCapital[index] * 100) / 100,
+    cryptoQuantity: cryptoQuantity[index],
   }));
+}
+
+export function sampleChartData(data: ChartDataPoint[], interval: ChartInterval): ChartDataPoint[] {
+  if (interval === 'daily') return data;
+
+  // Keep the first valuation and the last available valuation in each calendar period.
+  return data.filter((point, index) => {
+    const next = data[index + 1];
+    if (index === 0 || !next) return true;
+    if (interval === 'monthly') return point.date.slice(0, 7) !== next.date.slice(0, 7);
+    return startOfWeek(point.date) !== startOfWeek(next.date);
+  });
+}
+
+function startOfWeek(date: string): number {
+  const timestamp = Date.parse(date);
+  const daysSinceMonday = (new Date(timestamp).getUTCDay() + 6) % 7;
+  return timestamp - daysSinceMonday * DAY_MS;
 }
 
 export function calculateMetrics(
