@@ -1,57 +1,68 @@
-# rechart-data
+# DCA Crypto Calculator
 
-`rechart-data` is a small Next.js app for loading a local `.json` file and visualizing it quickly with Recharts.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-The original DCA crypto repo was simplified to keep only the essential stack:
+A modern web application to simulate Dollar Cost Averaging (DCA) strategies for Bitcoin and Ethereum investments.
 
-- Next.js 16
-- Tailwind CSS 4
-- Recharts
-- React 19
+## Features
 
-## What the app does
+- **Interactive DCA Simulation**: Calculate and visualize investment returns using Dollar Cost Averaging
+- **Multi-Cryptocurrency Support**: Analyze strategies for both Bitcoin and Ethereum
+- **Historical Data**: Uses real market data from the past years for accurate simulations
+- **Responsive Design**: Clean, dark-themed interface that works on all devices
+- **Real-time Charts**: Visualize your investment growth over time with interactive charts
 
-- upload a local JSON file
-- automatically detect the best data array in the document
-- choose the X axis
-- enable 1 to 3 numeric series
-- switch between `line`, `bar`, and `area`
-- preview the first rows in a table
-- show a quick summary of the loaded dataset
+## Tech Stack
 
-## Supported formats
+- **Framework**: Next.js 16 (App Router)
+- **Styling**: Tailwind CSS
+- **Charts**: Recharts
+- **Icons**: Lucide React
+- **API**: CryptoCompare API for historical crypto prices
 
-The app mainly works with:
+## Getting Started
 
-1. a root-level array of objects
-2. a JSON object containing a nested array of objects
-
-Example:
-
-```json
-[
-  { "month": "2025-01", "visitors": 1240, "revenue": 4800 },
-  { "month": "2025-02", "visitors": 1385, "revenue": 5210 }
-]
+1. Clone the repository:
+```bash
+git clone https://github.com/your-username/dca-crypto-calculator.git
+cd dca-crypto-calculator
 ```
 
-## Getting started
-
+2. Install dependencies:
 ```bash
 npm install
+```
+
+3. Set up your environment variables by creating a `.env.local` file:
+```bash
+CRYPTOCOMPARE_API_KEY=your_api_key_here
+```
+
+4. Run the development server:
+```bash
 npm run dev
 ```
 
-Then open `http://localhost:3000`.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Project name
+## Usage
 
-The package has been renamed to `rechart-data`. If you want to turn it into a separate GitHub fork, the remaining steps are:
+1. Select your cryptocurrency (Bitcoin or Ethereum)
+2. Set your initial capital amount
+3. Define your monthly investment amount
+4. Choose your investment period (start and end dates)
+5. Click "Calculate" to see your DCA strategy results
+6. Review the chart and summary metrics
 
-1. create a new remote repo called `rechart-data`
-2. point the local remote to it
-3. push this cleaned-up base
+## Screenshots
+
+![DCA Crypto Calculator Interface](public/screenshot.png)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-MIT
+This project is open source and available under the [MIT License](LICENSE).</content>
+<parameter name="filePath">D:\Github\dca-crypto-calculator\README.md
