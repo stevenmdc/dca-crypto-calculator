@@ -21,9 +21,9 @@ const monthFormat = new Intl.DateTimeFormat('fr-FR', { month: '2-digit', year: '
 const dayMonthFormat = new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
 const dateFormat = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeZone: 'UTC' });
 const chartIntervals = [
-  { value: 'daily', label: 'Daily' },
-  { value: 'weekly', label: 'Weekly' },
-  { value: 'monthly', label: 'Monthly' },
+  { value: 'daily', label: '24h' },
+  { value: 'weekly', label: '1W' },
+  { value: 'monthly', label: '1M' },
 ] as const;
 
 function chartTimestamp(point: ChartDataPoint): number {
@@ -43,14 +43,14 @@ export function DCAChart({ data, isLoading, cryptoType, currency }: DCAChartProp
 
   return (
     <div className="rounded-lg border border-slate-700 bg-midnight-900 p-4 sm:p-6">
-      <div role="group" aria-label="Fréquence d’affichage du graphique" className="mb-3 inline-flex flex-wrap gap-1 rounded-lg border border-slate-700 p-1">
+      <div role="group" aria-label="Fréquence d’affichage du graphique" className="mb-3 inline-flex gap-0.5 rounded-[9px] bg-[#303444] p-0.5">
         {chartIntervals.map(({ value, label }) => (
           <button
             key={value}
             type="button"
             aria-pressed={interval === value}
             onClick={() => setInterval(value)}
-            className="cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-cyan-400 aria-pressed:bg-slate-800 aria-pressed:text-cyan-200"
+            className="h-8 cursor-pointer rounded-[7px] px-2.5 text-sm font-bold text-[#9ea3b5] focus-visible:outline-2 focus-visible:outline-cyan-400 aria-pressed:bg-[#212531] aria-pressed:text-white aria-[pressed=false]:hover:bg-[#292d3a]"
           >
             {label}
           </button>

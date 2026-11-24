@@ -27,6 +27,10 @@ export function formatPercentage(value: number): string {
   return `${sign}${value.toFixed(2)}%`;
 }
 
+export function isValidDipThreshold(value: number): boolean {
+  return value > 0 && value < 100;
+}
+
 export function validateFormInputs(inputs: FormInputs): {
   valid: boolean;
   errors: string[];

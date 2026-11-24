@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import type { ContributionFrequency, CryptoType, Currency, PriceCoverage } from '@/types';
+import { useMemo, useState } from 'react';
+import type { ContributionFrequency, CryptoType, Currency, InvestmentStrategy, PriceCoverage } from '@/types';
 import { addDays } from '@/lib/price-dates';
 import { CalculatorSidebar } from '@/components/Sidebar/CalculatorSidebar';
 import { ResultsSection } from '@/components/Results/ResultsSection';
@@ -12,7 +12,12 @@ export function DcaSimulator({ history }: { history: Partial<Record<CryptoType, 
   const [currency, setCurrency] = useState<Currency>('EUR');
   const [initialCapital, setInitialCapital] = useState(100);
   const [contribution, setContribution] = useState(50);
+  const [strategyType, setStrategyType] = useState<InvestmentStrategy['type']>('dca');
   const [frequency, setFrequency] = useState<ContributionFrequency>('monthly');
+  const [dipThreshold, setDipThreshold] = useState(10);
+  const strategy = useMemo<InvestmentStrategy>(() => (
+    strategyType === 'dca' ? { type: 'dca', frequency } : { type: 'buy-the-dip', dipThreshold }
+  ), [strategyType, frequency, dipThreshold]);
   const [dates, setDates] = useState<{ startDate?: string; endDate?: string }>({});
   const coverage = history[selectedCrypto];
   const defaultStart = coverage ? addDays(coverage.lastDate, -365) : '';
@@ -26,7 +31,7 @@ export function DcaSimulator({ history }: { history: Partial<Record<CryptoType, 
     currency,
     initialCapital,
     contribution,
-    frequency,
+    strategy,
     startDate,
     endDate,
   });
@@ -53,10 +58,20 @@ export function DcaSimulator({ history }: { history: Partial<Record<CryptoType, 
           onInitialCapitalChange={setInitialCapital}
           contribution={contribution}
           onContributionChange={setContribution}
-          frequency={frequency}
+          strategy={strategy}
+          onStrategyChange={(next) => {
+            if (next === strategyType) return;
+            setStrategyType(next);
+            resetCalculation();
+          }}
           onFrequencyChange={(next) => {
             if (next === frequency) return;
             setFrequency(next);
+            resetCalculation();
+          }}
+          onDipThresholdChange={(next) => {
+            if (next === dipThreshold) return;
+            setDipThreshold(next);
             resetCalculation();
           }}
           startDate={startDate}

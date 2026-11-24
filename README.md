@@ -2,11 +2,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A web application for simulating Dollar Cost Averaging (DCA) in euros for Bitcoin, Ethereum, XRP and Solana.
+A web application for simulating Dollar Cost Averaging (DCA) and Buy the dip for Bitcoin, Ethereum, XRP and Solana.
 
 ## Features
 
-- **Interactive DCA Simulation**: Calculate and visualize investment returns using Dollar Cost Averaging
+- **Investment simulations**: Test recurring DCA purchases or buy when the price drops below a threshold
 - **Multi-Cryptocurrency Support**: Analyze strategies for Bitcoin, Ethereum, XRP and Solana
 - **Historical Data**: Uses real market data from the past years for accurate simulations
 - **Responsive Design**: Clean, dark-themed interface that works on all devices
@@ -48,11 +48,13 @@ npm run dev
 ## Usage
 
 1. Select your cryptocurrency
-2. Set your initial capital amount
-3. Define your monthly investment amount
+2. Select DCA or Buy the dip
+3. Set the initial capital, the amount per purchase, and the DCA frequency or dip threshold
 4. Choose your investment period (start and end dates)
-5. Click "Calculate" to see your DCA strategy results
+5. Click "Calculer" to run the simulation
 6. Review the chart and summary metrics
+
+Buy the dip measures each daily price against the highest price from the preceding 30 days within the simulation. It buys once when the drop first reaches the threshold. Another purchase requires the drop to fall below the threshold first.
 
 ## Price data
 

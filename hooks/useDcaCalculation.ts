@@ -1,17 +1,17 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
-import type { CalculationResult, ContributionFrequency, CryptoType, Currency, FormInputs } from '@/types';
+import type { CalculationResult, CryptoType, Currency, FormInputs, InvestmentStrategy } from '@/types';
 import { fetchHistoricalPrices } from '@/lib/priceApi';
-import { calculateDCA, calculateMetrics, prepareChartData } from '@/lib/dcaCalculator';
-import { dateFromISOString, validateFormInputs } from '@/lib/utils';
+import { calculateBuyTheDip, calculateDCA, calculateMetrics, prepareChartData } from '@/lib/dcaCalculator';
+import { dateFromISOString, isValidDipThreshold, validateFormInputs } from '@/lib/utils';
 
 interface UseDcaCalculationParams {
   selectedCrypto: CryptoType;
   currency: Currency;
   initialCapital: number;
   contribution: number;
-  frequency: ContributionFrequency;
+  strategy: InvestmentStrategy;
   startDate: string;
   endDate: string;
 }
@@ -21,7 +21,7 @@ export function useDcaCalculation({
   currency,
   initialCapital,
   contribution,
-  frequency,
+  strategy,
   startDate,
   endDate,
 }: UseDcaCalculationParams) {
@@ -58,6 +58,11 @@ export function useDcaCalculation({
         return;
       }
 
+      if (strategy.type === 'buy-the-dip' && !isValidDipThreshold(strategy.dipThreshold)) {
+        setError('Le seuil de baisse doit être supérieur à 0 % et inférieur à 100 %.');
+        return;
+      }
+
       const prices = await fetchHistoricalPrices(
         selectedCrypto,
         formInputs.startDate,
@@ -71,40 +76,36 @@ export function useDcaCalculation({
         return;
       }
 
-      const dcaResult = calculateDCA(
-        initialCapital,
-        contribution,
-        formInputs.startDate,
-        formInputs.endDate,
-        prices,
-        { frequency, dailyValuations: true },
-      );
+      const { startDate: start, endDate: end } = formInputs;
+      const simulation = strategy.type === 'dca'
+        ? calculateDCA(initialCapital, contribution, start, end, prices, { frequency: strategy.frequency, dailyValuations: true })
+        : calculateBuyTheDip(initialCapital, contribution, start, end, prices, strategy.dipThreshold);
 
       const chartData = prepareChartData(
-        dcaResult.dates,
-        dcaResult.portfolioValues,
-        dcaResult.investedCapital,
-        dcaResult.cryptoQuantity,
+        simulation.dates,
+        simulation.portfolioValues,
+        simulation.investedCapital,
+        simulation.cryptoQuantity,
       );
 
-      const finalValue = dcaResult.portfolioValues[dcaResult.portfolioValues.length - 1] || 0;
-      const totalInvested = dcaResult.investedCapital[dcaResult.investedCapital.length - 1] || 0;
+      const finalValue = simulation.portfolioValues.at(-1) || 0;
+      const totalInvested = simulation.investedCapital.at(-1) || 0;
       const metrics = calculateMetrics(totalInvested, finalValue);
 
-      const finalQuantity = dcaResult.cryptoQuantity[dcaResult.cryptoQuantity.length - 1] || 0;
-      const initialPrice = dcaResult.prices[0] || 0;
-      const finalPrice = dcaResult.prices[dcaResult.prices.length - 1] || 0;
+      const finalQuantity = simulation.cryptoQuantity.at(-1) || 0;
+      const initialPrice = simulation.prices[0] || 0;
+      const finalPrice = simulation.prices.at(-1) || 0;
       setResult({
         ...metrics,
         chartData,
         method: {
           initialCapital,
           contribution,
-          frequency,
+          strategy,
           initialPrice,
           finalPrice,
           totalCryptoQuantity: finalQuantity,
-          contributionCount: dcaResult.contributionCount,
+          contributionCount: simulation.contributionCount,
         },
       });
     } catch (err) {
@@ -114,7 +115,7 @@ export function useDcaCalculation({
     } finally {
       if (runId.current === currentRun) setIsLoading(false);
     }
-  }, [selectedCrypto, currency, initialCapital, contribution, frequency, startDate, endDate]);
+  }, [selectedCrypto, currency, initialCapital, contribution, strategy, startDate, endDate]);
 
   return {
     result,

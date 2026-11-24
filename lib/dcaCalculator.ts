@@ -1,5 +1,7 @@
-import type { CalculationResult, ChartDataPoint, ChartInterval, ContributionFrequency, DCAResult, PriceData } from '@/types';
+import type { CalculationResult, ChartDataPoint, ChartInterval, ContributionFrequency, DCAResult, InvestmentStrategy, PriceData } from '@/types';
 import { DAY_MS, utcDay } from './price-dates';
+
+export const BUY_THE_DIP_LOOKBACK_DAYS = 30;
 
 interface SimulationOptions {
   frequency?: ContributionFrequency;
@@ -14,6 +16,29 @@ export function calculateDCA(
   historicalPrices: PriceData[],
   { frequency = 'monthly', dailyValuations = false }: SimulationOptions = {},
 ): DCAResult {
+  return simulatePortfolio(initialCapital, contribution, startDate, endDate, historicalPrices, { type: 'dca', frequency }, dailyValuations);
+}
+
+export function calculateBuyTheDip(
+  initialCapital: number,
+  contribution: number,
+  startDate: Date,
+  endDate: Date,
+  historicalPrices: PriceData[],
+  dipThreshold: number,
+): DCAResult {
+  return simulatePortfolio(initialCapital, contribution, startDate, endDate, historicalPrices, { type: 'buy-the-dip', dipThreshold }, true);
+}
+
+function simulatePortfolio(
+  initialCapital: number,
+  contribution: number,
+  startDate: Date,
+  endDate: Date,
+  historicalPrices: PriceData[],
+  strategy: InvestmentStrategy,
+  dailyValuations: boolean,
+): DCAResult {
   const dates: Date[] = [];
   const portfolioValues: number[] = [];
   const investedCapital: number[] = [];
@@ -27,7 +52,10 @@ export function calculateDCA(
   let contributionCount = 0;
   let priceIndex = 0;
   let purchaseNumber = 1;
-  let nextPurchase = contributionDate(startDate, frequency, purchaseNumber);
+  let nextScheduledPurchase = strategy.type === 'dca'
+    ? contributionDate(startDate, strategy.frequency, purchaseNumber)
+    : Infinity;
+  let wasInDip = false;
 
   for (let timestamp = start; historicalPrices.length > 0 && timestamp <= end;) {
     // Advance through the sorted history, using the first price if the date precedes it.
@@ -39,12 +67,24 @@ export function calculateDCA(
     if (timestamp === start) {
       totalInvestedAmount = initialCapital;
       totalCryptoQuantity = initialCapital / price;
-    } else if (timestamp === nextPurchase) {
-      totalInvestedAmount += contribution;
-      totalCryptoQuantity += contribution / price;
-      if (contribution > 0) contributionCount++;
-      purchaseNumber++;
-      nextPurchase = contributionDate(startDate, frequency, purchaseNumber);
+    } else {
+      let shouldBuy = false;
+      if (strategy.type === 'buy-the-dip') {
+        const recentHigh = Math.max(...prices.slice(-BUY_THE_DIP_LOOKBACK_DAYS));
+        const inDip = price < recentHigh && price <= recentHigh * (100 - strategy.dipThreshold) / 100;
+        shouldBuy = inDip && !wasInDip;
+        wasInDip = inDip;
+      } else if (timestamp === nextScheduledPurchase) {
+        shouldBuy = true;
+        purchaseNumber++;
+        nextScheduledPurchase = contributionDate(startDate, strategy.frequency, purchaseNumber);
+      }
+
+      if (shouldBuy) {
+        totalInvestedAmount += contribution;
+        totalCryptoQuantity += contribution / price;
+        if (contribution > 0) contributionCount++;
+      }
     }
 
     dates.push(new Date(timestamp));
@@ -54,7 +94,7 @@ export function calculateDCA(
     prices.push(price);
     if (timestamp === end) break;
     const nextValuation = dailyValuations ? timestamp + DAY_MS : Infinity;
-    timestamp = Math.min(nextValuation, nextPurchase, end);
+    timestamp = Math.min(nextValuation, nextScheduledPurchase, end);
   }
 
   return {

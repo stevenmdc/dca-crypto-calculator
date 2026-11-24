@@ -3,6 +3,10 @@ export type Currency = 'EUR' | 'USD';
 export type ContributionFrequency = 'weekly' | 'monthly' | 'yearly';
 export type ChartInterval = 'daily' | 'weekly' | 'monthly';
 
+export type InvestmentStrategy =
+  | { type: 'dca'; frequency: ContributionFrequency }
+  | { type: 'buy-the-dip'; dipThreshold: number };
+
 export interface PriceCoverage {
   firstDate: string;
   lastDate: string;
@@ -32,7 +36,7 @@ export interface ChartDataPoint {
 export interface CalculationMethodDetails {
   initialCapital: number;
   contribution: number;
-  frequency: ContributionFrequency;
+  strategy: InvestmentStrategy;
   initialPrice: number;
   finalPrice: number;
   totalCryptoQuantity: number;

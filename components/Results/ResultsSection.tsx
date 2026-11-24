@@ -3,7 +3,6 @@
 import type { CalculationResult, CryptoType, Currency } from '@/types';
 import { DCAChart } from '@/components/Chart/DCAChart';
 import { SummaryCard } from '@/components/Summary/SummaryCard';
-import { CalculationMethodCard } from '@/components/Summary/CalculationMethodCard';
 
 interface ResultsSectionProps {
   result: CalculationResult | null;
@@ -21,15 +20,7 @@ export function ResultsSection({
   return (
     <main className="min-w-0 flex-1 space-y-6">
       <DCAChart data={result?.chartData || []} isLoading={isLoading} cryptoType={selectedCrypto} currency={currency} />
-      <SummaryCard result={result} isLoading={isLoading} currency={currency} />
-      {result && (
-        <CalculationMethodCard
-          result={result}
-          isLoading={isLoading}
-          selectedCrypto={selectedCrypto}
-          currency={currency}
-        />
-      )}
+      <SummaryCard result={result} isLoading={isLoading} selectedCrypto={selectedCrypto} currency={currency} />
     </main>
   );
 }

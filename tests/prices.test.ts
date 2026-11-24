@@ -3,7 +3,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { calculateDCA, prepareChartData, sampleChartData } from '../lib/dcaCalculator';
+import { calculateBuyTheDip, calculateDCA, prepareChartData, sampleChartData } from '../lib/dcaCalculator';
 import { addDays, DAY_MS, utcDay } from '../lib/price-dates';
 
 test('Chart keeps fractional crypto purchases on their dates and the quantity at the final valuation', () => {
@@ -72,6 +72,50 @@ test('Chart intervals sample daily valuations and retain the same final result',
   assert.deepEqual(monthly.map(({ date }) => date), ['2025-01-28', '2025-01-31', '2025-02-05']);
   assert.equal(weekly.at(-1), daily.at(-1));
   assert.equal(monthly.at(-1), daily.at(-1));
+});
+
+test('Buy the dip buys at the threshold once per dip and values the portfolio daily', () => {
+  const startDate = new Date('2025-01-01');
+  const prices = [100, 90, 80, 95, 120, 108, 100].map((price, index) => ({
+    timestamp: startDate.getTime() + index * DAY_MS,
+    price,
+  }));
+  const endDate = new Date(prices.at(-1)!.timestamp);
+  const simulation = calculateBuyTheDip(100, 50, startDate, endDate, prices, 10);
+  const finalQuantity = 1 + 50 / 90 + 50 / 108;
+
+  assert.equal(simulation.dates.length, prices.length);
+  assert.equal(simulation.contributionCount, 2);
+  assert.deepEqual(simulation.investedCapital, [100, 150, 150, 150, 150, 200, 200]);
+  assert.equal(simulation.cryptoQuantity.at(-1), finalQuantity);
+  assert.equal(simulation.portfolioValues.at(-1), finalQuantity * 100);
+
+  const withoutSignals = calculateBuyTheDip(100, 50, startDate, endDate, prices, 50);
+  assert.equal(withoutSignals.contributionCount, 0);
+  assert.equal(withoutSignals.investedCapital.at(-1), 100);
+
+  const withoutContributions = calculateBuyTheDip(0, 0, startDate, endDate, prices, 10);
+  assert.equal(withoutContributions.contributionCount, 0);
+  assert.equal(withoutContributions.portfolioValues.at(-1), 0);
+});
+
+test('Buy the dip stops using prices older than 30 days', () => {
+  const startDate = new Date('2025-01-01');
+  const prices = Array.from({ length: 32 }, (_, index) => ({
+    timestamp: startDate.getTime() + index * DAY_MS,
+    price: index === 0 ? 100 : index < 30 ? 95 : index === 30 ? 90 : 85,
+  }));
+
+  const simulation = calculateBuyTheDip(0, 50, startDate, new Date('2025-02-01'), prices, 10);
+  assert.equal(simulation.investedCapital[29], 0);
+  assert.equal(simulation.investedCapital[30], 50);
+  assert.equal(simulation.contributionCount, 1);
+
+  // Had the first 10% dip waited until day 31, the original high would no longer trigger a purchase.
+  prices[30].price = 95;
+  prices[31].price = 90;
+  const expired = calculateBuyTheDip(0, 50, startDate, new Date('2025-02-01'), prices, 10);
+  assert.equal(expired.contributionCount, 0);
 });
 
 test('SQLite-backed DCA works without external calls and rejects missing history', async (t) => {
